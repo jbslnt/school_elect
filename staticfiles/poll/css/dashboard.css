@@ -1,0 +1,115 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .dashboard-wrapper {
+    padding: 60px 20px;
+  }
+  
+  .card-custom {
+    border-left: 5px solid #770737;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-custom .card-body {
+    padding: 2rem;
+  }
+  
+  .card-title {
+    font-weight: 600;
+    font-size: 1.4rem;
+    color: #770737;
+  }
+  
+  a.text-decoration-none {
+    color: inherit;
+  }
+  
+  a.text-decoration-none:hover {
+    text-decoration: none;
+  }
+  
+  .btn-vote, .btn-result {
+    display: none; /* Hide buttons because we now use clickable cards */
+  }
+  
+  /* Center the greeting */
+  h1 {
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #333;
+  }
+  
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  border-radius: 15px;
+  border: none;
+  padding: 1.5rem;
+  background-color: #fff;
+  animation: fadeInModal 0.3s ease-in-out;
+}
+
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+  background-color: #770737;
+  color: white;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+.modal-body ul {
+  padding-left: 20px;
+}
+
+.modal-body li {
+  margin-bottom: 10px;
+}
+
+.modal-footer {
+  border-top: none;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+}
+
+.modal-footer .btn-primary {
+  background-color: #770737;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.modal-footer .btn-primary:hover {
+  background-color: #5a052a;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+
+.card-custom .display-6 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #770737;
+}

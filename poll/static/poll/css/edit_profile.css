@@ -1,0 +1,98 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    background-color: #f8f9fa;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .form-container {
+    background-color: #fff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    border: 2px solid #ccc;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    max-width: 720px;
+    margin: 20px auto;
+}
+
+  .form-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+  }
+
+  .form-control:focus {
+    border-color: #73003c;
+    box-shadow: 0 0 0 2px rgba(115, 0, 60, 0.2);
+    outline: none;
+}
+
+  
+  .profile-form .form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .profile-form label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #444;
+  }
+  
+  .profile-form input {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    width: 100%;
+  }
+  
+  .profile-form input:focus {
+    border-color: #73003c;
+    box-shadow: 0 0 0 2px rgba(115, 0, 60, 0.1);
+    outline: none;
+  }
+  
+  .btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #73003c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn:hover {
+    background-color: #5e002f;
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      padding: 25px 20px;
+      border-radius: 10px;
+    }
+  
+    .container h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+  
+    .profile-form input {
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+  
+    .btn {
+      font-size: 15px;
+      padding: 10px;
+    }
+  }
+  

@@ -1,0 +1,83 @@
+{% extends "poll/base.html" %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'poll/css/result.css' %}">
+
+{% if show_modal %}
+<div class="modal fade show d-block" id="resultModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title">Notice</h5>
+      </div>
+      <div class="modal-body">
+        <p>{{ modal_message }}</p>
+      </div>
+      <div class="modal-footer">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+      </div>      
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+{% endif %}
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-12">
+      <div class="card shadow-sm rounded-4">
+        <div class="card-body">
+          <h2 class="text-center mb-4 title">Election Results</h2>
+
+          {% if current_event %}
+          <div class="alert alert-info">
+            <strong>Election Event:</strong> {{ current_event.title }} <br>
+            <strong>Status:</strong> {{ current_event.status }} <br>
+            <strong>Start Time:</strong> {{ current_event.start_time|date:"F j, Y - h:i A" }} <br>
+            <strong>End Time:</strong> {{ current_event.end_time|date:"F j, Y - h:i A" }} <br>
+          </div>
+          {% endif %}
+
+          {% if last_updated %}
+            <p class="text-muted">🕒 Results as of {{ last_updated|date:"F j, Y - h:i A" }}</p>
+          {% else %}
+            <p class="text-muted"> No votes have been cast yet.</p>
+          {% endif %}
+
+          {% for position, candidates in results.items %}
+          <div class="card shadow-sm rounded-4 mt-4">
+            <div class="card-body">
+              <h3 class="text-center mb-3 title">{{ position }}</h3>
+              <table class="table table-hover align-middle text-center custom-table">
+                <thead class="table-header">
+                  <tr>
+                    <th>Candidate</th>
+                    <th>Partylist</th>
+                    <th>Total Votes</th>
+                    <th>Vote %</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for entry in candidates %}
+                    <tr>
+                      <td>{{ entry.candidate.name }}</td>
+                      <td>{{ entry.candidate.partylist }}</td>
+                      <td>{{ entry.candidate.total_vote }}</td>
+                      <td>{{ entry.percentage }}%</td>
+                      <td><strong>{{ entry.status }}</strong></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endfor %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

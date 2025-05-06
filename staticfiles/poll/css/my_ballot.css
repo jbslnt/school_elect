@@ -1,0 +1,29 @@
+body {
+    background-color: #f9fafb;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .title {
+    font-weight: 700;
+    color: #5a0a3c;
+  }
+  
+  .card {
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: none;
+  }
+  
+  .receipt-item {
+    border-bottom: 1px solid #eee;
+    padding: 12px 0;
+  }
+  
+  .receipt-item:last-child {
+    border-bottom: none;
+  }
+  
+  .fw-bold {
+    color: #333;
+  }
+  

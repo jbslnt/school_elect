@@ -1,0 +1,90 @@
+body {
+background-color: #f8f9fa;
+font-family: 'Roboto', sans-serif;
+}
+
+.position-card {
+border-left: 5px solid #770737;
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.position-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.position-card .card-body {
+padding: 2rem;
+}
+
+.card-title {
+font-weight: 600;
+font-size: 1.4rem;
+color: #770737;
+}
+
+.card-text {
+color: #555;
+}
+
+h3 {
+font-weight: 700;
+margin-bottom: 30px;
+color: #333;
+}
+
+
+.modal.show.d-block {
+    background: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modal-content {
+    border-radius: 12px;
+    border: none;
+    overflow: hidden;
+  }
+  
+  .modal-header {
+    background-color: #770737;
+    color: #fff;
+    padding: 1rem 1.25rem;
+  }
+  
+  .modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .modal-footer {
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: flex-end;
+    background-color: #f8f9fa;
+  }
+  
+  .modal-backdrop.show {
+    opacity: 0.5;
+  }
+  
+  a.btn.btn-secondary {
+    background-color: #770737 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  a.btn.btn-secondary:hover {
+    background-color: #cc5085 !important;
+    color: #fff !important;
+  }
+  

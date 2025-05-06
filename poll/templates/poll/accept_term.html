@@ -1,0 +1,17 @@
+{% extends "poll/base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Terms and Conditions for Voting</h2>
+  <p>By continuing, you agree to the following terms:</p>
+  <ul>
+    <li>You will vote honestly and fairly.</li>
+    <li>You understand your vote is final and cannot be changed.</li>
+    <li>You are participating in the election voluntarily.</li>
+  </ul>
+  
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="accept" class="btn btn-primary mt-3">I Accept & Proceed to Vote</button>
+  </form>
+</div>
+{% endblock %}

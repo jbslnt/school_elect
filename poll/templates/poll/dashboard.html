@@ -1,0 +1,136 @@
+{% extends "poll/base.html" %}
+
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'poll/css/dashboard.css' %}">
+
+{% if show_terms %}
+<div class="modal fade show d-block" id="termsModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title">Terms and Conditions</h5>
+      </div>
+      <div class="modal-body">
+        <p>Please read and accept the terms before participating in the election.</p>
+        <ul>
+          <li>Each student is allowed to vote only once per position.</li>
+          <li>Votes are final and cannot be changed once submitted.</li>
+          <li>Any attempt at tampering with the system will result in disqualification.</li>
+          <li>Your identity will be kept confidential.</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="{% url 'accept_terms' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">I Accept</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+{% endif %}
+
+<div class="container dashboard-wrapper">
+  <div class="text-center mb-5">
+    <h1 class="fw-bold">Welcome, {{ request.user.get_full_name }}</h1>
+  </div>
+
+  <form method="POST" class="mb-4">
+    {% csrf_token %}
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <label for="selected_event" class="form-label">Select Election Event:</label>
+        <select id="selected_event" name="selected_event" class="form-select">
+          <option value="">-- Select Event --</option>
+          {% for event in events %}
+            <option value="{{ event.id }}" {% if event.id == selected_event_id %}selected{% endif %}>{{ event.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Select Event</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="row g-4 justify-content-center">
+    <div class="col-md-4">
+      <div class="card card-custom text-center">
+        <div class="card-body">
+          <h5 class="card-title">👥 Total Users</h5>
+          <p class="display-6">{{ total_users }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card card-custom text-center">
+        <div class="card-body">
+          <h5 class="card-title">🗳️ Total Voters</h5>
+          <p class="display-6">{{ total_voters }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card card-custom text-center">
+        <div class="card-body">
+          <h5 class="card-title">📈 Turnout</h5>
+          <p class="display-6">{{ turnout }}%</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if event %}
+  <div class="card card-custom mt-5">
+    <div class="card-body">
+      <h5 class="card-title">Election Event Details</h5>
+      <p><strong>Title:</strong> {{ event.title }}</p>
+      <p><strong>Status:</strong> {{ event_status }}</p>
+      <p><strong>Start Time:</strong> {{ event.start_time }}</p>
+      <p><strong>End Time:</strong> {{ event.end_time }}</p>
+      <p><strong id="countdown"></strong></p>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert alert-warning mt-5 text-center">
+    No election event configured.
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  const eventStatus = "{{ event_status }}";
+  const targetTime = new Date("{% if event_status == 'Upcoming' %}{{ event.start_time|date:'Y-m-d H:i:s' }}{% else %}{{ event.end_time|date:'Y-m-d H:i:s' }}{% endif %}").getTime();
+  const countdown = document.getElementById("countdown");
+
+  const timer = setInterval(() => {
+    const now = new Date().getTime();
+    const distance = targetTime - now;
+
+    if (distance < 0) {
+      clearInterval(timer);
+      countdown.innerHTML = eventStatus === "Upcoming" ? "✔️ Election Started" : "⏰ Election Ended";
+    } else {
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      let countdownString = '';
+
+      if (days > 0) countdownString += `${days} day${days > 1 ? 's' : ''} `;
+      if (hours > 0 || days > 0) countdownString += `${hours} hour${hours > 1 ? 's' : ''} `;
+      if (minutes > 0 || hours > 0 || days > 0) countdownString += `${minutes} minute${minutes > 1 ? 's' : ''} `;
+      countdownString += `${seconds} second${seconds > 1 ? 's' : ''}`;
+
+      countdown.innerHTML = eventStatus === "Upcoming"
+        ? `🕒 Starts in ${countdownString}`
+        : `⏳ Ends in ${countdownString}`;
+    }
+  }, 1000);
+</script>
+
+{% endblock %}

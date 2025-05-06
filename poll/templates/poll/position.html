@@ -1,0 +1,73 @@
+{% extends "poll/base.html" %}
+
+{% block title %}Available Positions{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'poll/css/position.css' %}">
+
+{% if show_modal %}
+<div class="modal fade show d-block" id="noElectionModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="noElectionModalLabel">No Active Election</h5>
+      </div>
+      <div class="modal-body">
+        <p>{{ modal_message }}</p>
+      </div>
+      <div class="modal-footer">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Return to Dashboard</a>
+      </div>      
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+{% endif %}
+
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-success" role="alert">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 text-center mb-4">
+      <h3>Available Positions For Voting</h3>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    {% for i in obj %}
+      <div class="col-md-4 mb-4">
+        <a href="{% url 'candidate' i.id %}" class="text-decoration-none">
+          <div class="card position-card text-center shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">{{ i.title }}</h5>
+              <p class="card-text">Click to vote</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center">
+        <p>No Positions Available</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% if show_event_modal %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const modal = new bootstrap.Modal(document.getElementById('noElectionModal'));
+    modal.show();
+  });
+</script>
+{% endif %}
+
+{% endblock %}

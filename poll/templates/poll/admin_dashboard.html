@@ -1,0 +1,24 @@
+{% extends 'poll/base.html' %}
+{% block content %}
+<h2>Admin Vote Summary</h2>
+
+{% for item in summary %}
+  <h3>{{ item.position }}</h3>
+  <table border="1" cellpadding="5">
+    <tr>
+      <th>Candidate</th>
+      <th>Partylist</th>
+      <th>Votes</th>
+    </tr>
+    {% for c in item.candidates %}
+      <tr>
+        <td>{{ c.name }}</td>
+        <td>{{ c.partylist }}</td>
+        <td>{{ c.votes }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  <br>
+{% endfor %}
+
+{% endblock %}

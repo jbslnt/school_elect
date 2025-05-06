@@ -1,0 +1,83 @@
+body {
+    background: linear-gradient(135deg, #6f42c1, #ff6f61);
+    font-family: 'Roboto', sans-serif;
+    color: #f8f9fa;
+}
+
+.candidate-details {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+    transition: all 0.3s ease;
+    max-width: 1200px; 
+    margin: auto;
+}
+
+
+.candidate-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+.candidate-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.candidate-name {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #343a40;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.3;
+    transition: color 0.3s ease;
+}
+
+.candidate-name:hover {
+    color: #070707;
+}
+
+.candidate-info p {
+    font-size: 1.2rem;
+    color: #495057;
+    margin-bottom: 12px;
+    line-height: 1.6;
+    transition: color 0.3s ease;
+}
+
+.candidate-info p strong {
+    color: #770737;
+}
+
+.candidate-description {
+    font-style: italic;
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin-bottom: 20px;
+    line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+    .candidate-details {
+        padding: 20px;
+    }
+    .candidate-image {
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
+    .candidate-name {
+        font-size: 2.2rem;
+    }
+    .candidate-info p {
+        font-size: 1rem;
+    }
+}

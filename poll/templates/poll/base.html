@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>{% block title %}Online Voting System{% endblock %}</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'poll/css/base.css' %}">
+</head>
+<body>
+
+<div class="layout-wrapper d-flex">
+
+  <div id="sidebar" class="text-white p-3 d-none d-md-block">
+    <div class="sidebar-logo mb-4 text-center">
+      <a href="{% url 'home' %}" class="navbar-brand text-white">
+        <img src="{% static 'poll/images/schoolelect_logo_final.png' %}" alt="SCHOOLELECT" class="img-fluid" style="max-height: 200px;">
+      </a>
+    </div>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'dashboard' %}"> Dashboard </a>
+      </li>
+    </ul>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'position' %}"> Vote </a>
+      </li>
+    </ul>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'result' %}"> Election Result </a>
+      </li>
+    </ul>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'my_ballot' %}"> My Ballot </a>
+      </li>
+    </ul>
+  </div>
+
+  <div id="main-content" class="flex-grow-1">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand custom-brand" href="{% url 'home' %}">
+        SchoolElect Digital Voting System
+      </a>
+      
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-between" id="navbarNavDropdown">
+
+        <ul class="navbar-nav d-md-none">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard' %}"> Dashboard </a>
+          </li>
+        </ul>
+        <ul class="navbar-nav d-md-none">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'position' %}"> Vote </a>
+          </li>
+        </ul>
+        <ul class="navbar-nav d-md-none">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'result' %}"> Election Result </a>
+          </li>
+        </ul>
+        <ul class="navbar-nav d-md-none">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'my_ballot' %}"> My Ballot </a>
+          </li>
+        </ul>
+        
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle account-toggle" href="#" id="accountDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-user-circle"></i>
+              {% if request.user.first_name or request.user.last_name %}
+                {{ request.user.first_name }} {{ request.user.last_name }}
+              {% else %}
+                Account
+              {% endif %}
+              
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" id="accountDropdown" aria-labelledby="accountDropdownToggle">
+              {% if request.user.is_authenticated %}
+                <a class="dropdown-item" href="{% url 'editprofile' %}">Edit Profile</a>
+                <a class="dropdown-item" href="{% url 'changepass' %}">Change Password</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+              {% else %}
+                <a class="dropdown-item" href="{% url 'login' %}">Login</a>
+                <a class="dropdown-item" href="{% url 'registration' %}">Register</a>
+              {% endif %}
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<script src="{% static 'poll/js/base.js' %}"></script>
+
+</body>
+</html>

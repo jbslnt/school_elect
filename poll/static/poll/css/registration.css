@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: #f8f9fa;
+  color: #333;
+  font-size: 16px;
+}
+
+/* Modal styling */
+.modal-content {
+  border-radius: 10px;
+}
+
+.modal-header,
+.modal-footer {
+  border: none;
+}
+
+.modal-title {
+  font-weight: 600;
+  color: #770737;
+}
+
+.modal-body p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Container and Card */
+.container {
+  max-width: 960px;
+  margin: auto;
+}
+
+.card {
+  background: #ffffff;
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.card-body {
+  padding: 10px;
+}
+
+/* Section Titles */
+.title {
+  color: #770737;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Alert Box */
+.alert-info {
+  background-color: #eaf3fb;
+  color: #0c5460;
+  border: 1px solid #b8daff;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+/* Table Styling */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.custom-table thead th {
+  background-color: #770737;
+  color: white;
+  font-weight: 600;
+  padding: 12px;
+  border: none;
+  text-align: center;
+}
+
+.custom-table tbody td {
+  padding: 12px;
+  font-size: 15px;
+  border-top: 1px solid #dee2e6;
+  text-align: center;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.custom-table td strong {
+  font-weight: 600;
+  color: #343a40;
+}
+
+/* Timestamp */
+.text-muted {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Responsive tweak */
+@media (max-width: 768px) {
+  .custom-table th,
+  .custom-table td {
+    font-size: 14px;
+    padding: 10px;
+  }
+}

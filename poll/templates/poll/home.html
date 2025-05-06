@@ -1,0 +1,22 @@
+{% load static %}
+
+{% block content %}
+<title>SchoolElect</title>
+<link rel="stylesheet" href="{% static 'poll/css/home.css' %}">
+
+<div class="landing-wrapper">
+  <div class="landing-card">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert-message">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <h1>Welcome to <span class="highlight">SchoolElect</span></h1>
+    <p class="subtitle">A secure digital voting platform for <strong>Jose Maria College Foundation, Inc.</strong>.</p>
+    <a href="{% url 'login' %}" class="cta-button">Start Voting</a>
+  </div>
+</div>
+{% endblock %}

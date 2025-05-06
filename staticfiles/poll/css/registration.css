@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: #f1f1f1;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.register-container {
+  width: 100%;
+  max-width: 500px;
+}
+
+.register-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.register-header {
+  background: #770737;
+  color: #fff;
+  padding: 30px 20px;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+}
+
+.register-header h2 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.register-form {
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.register-form .form-control {
+    padding: 14px;
+    border: none;
+    border-radius: 30px;
+    background: #eee;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    width: 100%; 
+  }
+  
+
+.note {
+  text-align: left;
+  font-size: 12px;
+  color: #666;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  padding-left: 10px;
+}
+
+.text-danger {
+  text-align: left;
+  font-size: 12px;
+  color: #c0392b;
+  padding-left: 10px;
+  margin-top: -8px;
+}
+
+.register-form button {
+    background: #770737;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100%; 
+  }
+
+.register-form button:hover {
+  background: #5c062c;
+}
+
+.signin-link {
+  padding: 20px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.signin-link a {
+  color: #770737;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+

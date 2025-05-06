@@ -1,0 +1,47 @@
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<title>SchoolElect</title>
+<link rel="stylesheet" href="{% static 'poll/css/registration.css' %}">
+
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <h2>User Registration</h2>
+    </div>
+
+    {% if note %}
+      <h3 class="text text-muted" style="text-align: center;">{{ note }}</h3>
+    {% endif %}
+
+    <form class="register-form" method="POST" action="">
+      {% csrf_token %}
+
+      {% for field in form %}
+        <div class="form-group">
+          {% if field.field.widget.input_type != "select" %}
+            {% render_field field class="form-control" placeholder=field.label %}
+          {% else %}
+            {% render_field field class="form-control" %}
+          {% endif %}
+
+          {% if field.help_text %}
+            <small class="note">{{ field.help_text }}</small>
+          {% endif %}
+          {% for error in field.errors %}
+            <small class="text-danger">{{ error }}</small>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+
+      <button type="submit">Sign Up</button>
+    </form>
+
+    <div class="signin-link">
+      <p>Already have an account?<br><a href="{% url 'login' %}">SIGN IN NOW</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
