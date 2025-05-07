@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
 from .models import (
     ElectionEvent, Position, Candidate,
     UserVote, ControlVote, UserProfile
@@ -9,7 +12,56 @@ from .models import (
 class ElectionEventAdmin(admin.ModelAdmin):
     list_display = ('title', 'start_time', 'end_time', 'status')
     ordering = ('-start_time',)
+    actions = ['generate_pdf_summary']
 
+    def generate_pdf_summary(self, request, queryset):
+        if queryset.count() != 1:
+            self.message_user(request, "Please select exactly one election event.", level='error')
+            return
+
+        event = queryset.first()
+        positions = Position.objects.filter(event=event).prefetch_related('candidate_set')
+        
+        # Create the PDF response
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="summary_{event.title}.pdf"'
+
+        p = canvas.Canvas(response, pagesize=A4)
+        width, height = A4
+        y = height - 50
+
+        p.setFont("Helvetica-Bold", 16)
+        p.drawString(50, y, f"Election Summary Report")
+        y -= 25
+        p.setFont("Helvetica", 12)
+        p.drawString(50, y, f"Event: {event.title}")
+        y -= 20
+        p.drawString(50, y, f"Date Range: {event.start_time.strftime('%Y-%m-%d')} to {event.end_time.strftime('%Y-%m-%d')}")
+        y -= 30
+
+        for position in positions:
+            p.setFont("Helvetica-Bold", 12)
+            p.drawString(50, y, f"Position: {position.title}")
+            y -= 20
+
+            candidates = Candidate.objects.filter(position=position).order_by('-total_vote')
+            for candidate in candidates:
+                p.setFont("Helvetica", 11)
+                line = f"• {candidate.name} ({candidate.partylist or 'No Party'}) - {candidate.total_vote} vote(s)"
+                p.drawString(70, y, line)
+                y -= 15
+
+                if y < 100:
+                    p.showPage()
+                    y = height - 50
+
+            y -= 10  # Spacing between positions
+
+        p.showPage()
+        p.save()
+        return response
+
+    generate_pdf_summary.short_description = "📄 Generate PDF summary report"
 
 @admin.register(Position)
 class PositionAdmin(admin.ModelAdmin):
