@@ -1,38 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
 body {
-background-color: #f8f9fa;
-font-family: 'Roboto', sans-serif;
+  background-color: #f8f9fa;
+  font-family: 'Roboto', sans-serif;
 }
 
+/* Position Card (kept for fallback or other pages) */
 .position-card {
-border-left: 5px solid #770737;
-transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-left: 5px solid #770737;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .position-card:hover {
-transform: translateY(-5px);
-box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .position-card .card-body {
-padding: 2rem;
+  padding: 2rem;
 }
 
 .card-title {
-font-weight: 600;
-font-size: 1.4rem;
-color: #770737;
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: #770737;
 }
 
 .card-text {
-color: #555;
+  color: #555;
 }
 
+/* General Headings */
 h3 {
-font-weight: 700;
-margin-bottom: 30px;
-color: #333;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #333;
 }
 
+/* Modal Styling */
 .modal.show.d-block {
   background: rgba(0, 0, 0, 0.5);
 }
@@ -85,4 +90,39 @@ a.btn.btn-secondary {
 a.btn.btn-secondary:hover {
   background-color: #633247 !important;
   color: #fff !important;
+}
+
+/* Instruction Box Styling */
+.instruction-box {
+  background-color: #fff;
+  border-left: 6px solid #770737;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  margin-top: 2rem;
+}
+
+.instruction-box h3 {
+  font-size: 1.5rem;
+  color: #770737;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.instruction-box ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  color: #444;
+}
+
+.instruction-box ul li {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Responsive Button */
+.btn-lg {
+  font-size: 1.2rem;
+  padding: 0.75rem 2.5rem;
 }

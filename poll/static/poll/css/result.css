@@ -97,3 +97,72 @@ a.btn.btn-secondary:hover {
   background-color: #633247 !important;
   color: #fff !important;
 }
+
+
+/* Make tables horizontally scrollable on smaller screens */
+@media (max-width: 768px) {
+  .custom-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .custom-table thead,
+  .custom-table tbody,
+  .custom-table th,
+  .custom-table td,
+  .custom-table tr {
+    display: block;
+    text-align: left;
+  }
+
+  .custom-table thead {
+    display: none; /* Hide table header for mobile */
+  }
+
+  .custom-table tr {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .custom-table td {
+    padding-left: 50%;
+    position: relative;
+    font-size: 0.875rem;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .custom-table td::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 45%;
+    padding-left: 1rem;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  .custom-table td:nth-of-type(1)::before { content: "Candidate"; }
+  .custom-table td:nth-of-type(2)::before { content: "Partylist"; }
+  .custom-table td:nth-of-type(3)::before { content: "Total Votes"; }
+  .custom-table td:nth-of-type(4)::before { content: "Vote %"; }
+  .custom-table td:nth-of-type(5)::before { content: "Status"; }
+}
+
+/* Optional: Adjust modal for smaller screens */
+@media (max-width: 576px) {
+  .modal-dialog {
+    margin: 1rem;
+  }
+
+  .modal-body {
+    font-size: 0.9rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

@@ -1,8 +1,8 @@
 {% load static %}
 {% load widget_tweaks %}
-
 {% block content %}
-<title>SchoolElect</title>
+
+<title>User Registration</title>
 <link rel="stylesheet" href="{% static 'poll/css/registration.css' %}">
 
 <div class="register-container">
@@ -17,7 +17,6 @@
 
     <form class="register-form" method="POST" action="">
       {% csrf_token %}
-
       {% for field in form %}
         <div class="form-group">
           {% if field.field.widget.input_type != "select" %}
@@ -25,7 +24,6 @@
           {% else %}
             {% render_field field class="form-control" %}
           {% endif %}
-
           {% if field.help_text %}
             <small class="note">{{ field.help_text }}</small>
           {% endif %}
@@ -34,7 +32,6 @@
           {% endfor %}
         </div>
       {% endfor %}
-
 
       <button type="submit">Sign Up</button>
     </form>

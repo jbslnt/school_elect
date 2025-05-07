@@ -1,7 +1,5 @@
 {% extends "poll/base.html" %}
-
 {% block title %}Candidate{% endblock %}
-
 {% block content %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'poll/css/candidate.css' %}">
@@ -19,13 +17,21 @@
       {% endif %}
 
       <div class="mb-3">
-        <a href="{% url 'position' %}" class="back-link">← Back</a>
+        <a href="{% url 'position' %}" class="back-link">← Back to Positions</a>
       </div>
 
-      <h2 class="text-center mb-4">Available Candidates for {{ obj.title }}</h2>
+      <!-- Event Name Displayed -->
+      {% if event %}
+        <h2 class="text-center mb-4 event-name"> {{ event }}</h2> 
+      {% endif %}
+
+      <h3 class="text-center mb-4">Candidates for {{ obj.title }}</h3>
+
+      <div class="custom-instruction-box">
+        <strong>Short Instruction:</strong> Please choose your preferred candidate for <em>{{ obj.title }}</em> below.
+      </div>      
 
       {% if show_vote_disabled_modal %}
-        <!-- Modal or notification when voting is disabled -->
         <div class="alert alert-warning text-center" role="alert">
           The election has ended. You can no longer vote.
         </div>
@@ -57,18 +63,23 @@
         </div>
 
         <button type="submit" class="btn btn-vote" {% if not can_vote %}disabled{% endif %}>Submit Vote</button>
-
       </form>
 
+      <div class="d-flex justify-content-between mt-4">
+        {% if prev_position %}
+          <a href="{% url 'candidate' prev_position %}" class="btn btn-nav">← Back</a>
+        {% endif %}
+        {% if next_position %}
+          <a href="{% url 'candidate' next_position %}" class="btn btn-nav">Next →</a>
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>
 
-<!-- CONFIRMATION SCRIPT -->
 <script>
   function confirmVote() {
     return confirm('Are you sure you want to cast your vote?');
   }
 </script>
-
 {% endblock %}

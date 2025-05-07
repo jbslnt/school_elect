@@ -4,6 +4,7 @@
 {% load static %}
 
 <link rel="stylesheet" href="{% static 'poll/css/dashboard.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 {% if show_terms %}
 <div class="modal fade show d-block" id="termsModal" tabindex="-1" role="dialog">
@@ -57,7 +58,7 @@
   </form>
 
   <div class="row g-4 justify-content-center">
-    <div class="col-md-4">
+    <div class="col-md-4 col-sm-6 col-12">
       <div class="card card-custom text-center">
         <div class="card-body">
           <h5 class="card-title">👥 Total Users</h5>
@@ -65,7 +66,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4 col-sm-6 col-12">
       <div class="card card-custom text-center">
         <div class="card-body">
           <h5 class="card-title">🗳️ Total Voters</h5>
@@ -73,7 +74,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4 col-sm-6 col-12">
       <div class="card card-custom text-center">
         <div class="card-body">
           <h5 class="card-title">📈 Turnout</h5>
@@ -99,6 +100,34 @@
     No election event configured.
   </div>
   {% endif %}
+
+  {% if event %}
+  <div class="container mt-5">
+    <h3 class="text-center mb-4">Demographic Breakdown</h3>
+    <div class="row g-4 justify-content-center">
+      <!-- Gender Distribution Chart -->
+      <div class="col-md-6 col-12">
+        <h5 class="text-center">Gender</h5>
+        <canvas id="genderChart"></canvas>
+      </div>
+      <!-- Year Distribution Chart -->
+      <div class="col-md-6 col-12">
+        <h5 class="text-center">Year</h5>
+        <canvas id="yearChart"></canvas>
+      </div>
+      <!-- Program Distribution Chart -->
+      <div class="col-md-6 col-12">
+        <h5 class="text-center">Program</h5>
+        <canvas id="programChart"></canvas>
+      </div>
+      <!-- Department Distribution Chart -->
+      <div class="col-md-6 col-12">
+        <h5 class="text-center">Department</h5>
+        <canvas id="departmentChart"></canvas>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 <script>
@@ -120,7 +149,6 @@
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
       let countdownString = '';
-
       if (days > 0) countdownString += `${days} day${days > 1 ? 's' : ''} `;
       if (hours > 0 || days > 0) countdownString += `${hours} hour${hours > 1 ? 's' : ''} `;
       if (minutes > 0 || hours > 0 || days > 0) countdownString += `${minutes} minute${minutes > 1 ? 's' : ''} `;
@@ -131,6 +159,51 @@
         : `⏳ Ends in ${countdownString}`;
     }
   }, 1000);
+</script>
+
+<script>
+  const genderLabels = {{ gender_labels|safe }};
+  const genderCounts = {{ gender_counts|safe }};
+  const yearLabels = {{ year_labels|safe }};
+  const yearCounts = {{ year_counts|safe }};
+  const programLabels = {{ program_labels|safe }};
+  const programCounts = {{ program_counts|safe }};
+  const departmentLabels = {{ department_labels|safe }};
+  const departmentCounts = {{ department_counts|safe }};
+
+  function createBarChart(id, labels, data, label, color = '#3498db') {
+    const ctx = document.getElementById(id).getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: label,
+          data: data,
+          backgroundColor: color,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            }
+          }
+        }
+      }
+    });
+  }
+
+  createBarChart('genderChart', genderLabels, genderCounts, 'Gender Distribution');
+  createBarChart('yearChart', yearLabels, yearCounts, 'Year Distribution', '#2ecc71');
+  createBarChart('programChart', programLabels, programCounts, 'Program Distribution', '#e67e22');
+  createBarChart('departmentChart', departmentLabels, departmentCounts, 'Department Distribution', '#9b59b6');
 </script>
 
 {% endblock %}

@@ -29,3 +29,10 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'student_id', 'department', 'program', 'accepted_terms')
     list_filter = ('department', 'program', 'accepted_terms')
     search_fields = ('user__username', 'student_id')
+
+
+@admin.register(UserVote)
+class UserVoteAdmin(admin.ModelAdmin):
+    list_display = ('user', 'candidate', 'timestamp')
+    list_filter = ('timestamp',)
+    search_fields = ('user__username', 'candidate__name')

@@ -13,6 +13,8 @@ from .forms import EditProfileForm
 from collections import defaultdict
 from django.utils.timezone import now
 from django.db.models import Count
+import json
+
 
 def homeView(request):
     return render(request, "poll/home.html")
@@ -52,6 +54,10 @@ def registrationView(request):
 
 
 def loginView(request):
+    # If the user is already authenticated, redirect to the dashboard
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
     if request.method == "POST":
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -104,21 +110,26 @@ def dashboardView(request):
         total_users = User.objects.count()  # Or filter by event if needed
         turnout = round((total_voters / total_users) * 100, 2) if total_users else 0
         event_status = current_event.status()
+        
+        # Filter UserProfile by the selected event and their related data
+        users_for_event = UserProfile.objects.filter(user__controlvote__position__event=current_event)
     else:
         total_users = 0
         total_voters = 0
         turnout = 0
         event_status = "No event selected"
+        users_for_event = UserProfile.objects.none()  # No users if no event is selected
 
-    # Demographics
-    gender_stats = UserProfile.objects.values('gender').annotate(count=Count('gender'))
-    program_stats = UserProfile.objects.values('program').annotate(count=Count('program'))
-    year_stats = UserProfile.objects.values('year').annotate(count=Count('year'))
-    department_stats = UserProfile.objects.values('department').annotate(count=Count('department'))
+    # Demographics filtered by the selected event
+    gender_stats = users_for_event.values('gender').annotate(count=Count('gender'))
+    program_stats = users_for_event.values('program').annotate(count=Count('program'))
+    year_stats = users_for_event.values('year').annotate(count=Count('year'))
+    department_stats = users_for_event.values('department').annotate(count=Count('department'))
 
     profile = request.user.userprofile
     show_terms = not profile.accepted_terms
 
+    # Prepare the chart data for JSON serialization
     context = {
         'total_users': total_users,
         'total_voters': total_voters,
@@ -134,7 +145,19 @@ def dashboardView(request):
         'department_stats': department_stats,
     }
 
+    context.update({
+        'gender_labels': json.dumps([entry['gender'] for entry in gender_stats]),
+        'gender_counts': json.dumps([entry['count'] for entry in gender_stats]),
+        'year_labels': json.dumps([entry['year'] for entry in year_stats]),
+        'year_counts': json.dumps([entry['count'] for entry in year_stats]),
+        'program_labels': json.dumps([entry['program'] for entry in program_stats]),
+        'program_counts': json.dumps([entry['count'] for entry in program_stats]),
+        'department_labels': json.dumps([entry['department'] for entry in department_stats]),
+        'department_counts': json.dumps([entry['count'] for entry in department_stats]),
+    })
+
     return render(request, "poll/dashboard.html", context)
+
 
 @login_required
 def positionView(request):
@@ -173,8 +196,16 @@ def candidateView(request, pos):
         messages.error(request, "No election event selected.")
         return redirect('dashboard')
 
-    # Ensure the position belongs to the selected event
+    # Get all positions for the event and determine navigation order
+    positions = list(Position.objects.filter(event=current_event).order_by('id'))
     obj = get_object_or_404(Position, pk=pos, event=current_event)
+
+    try:
+        current_index = positions.index(obj)
+        prev_position = positions[current_index - 1].id if current_index > 0 else None
+        next_position = positions[current_index + 1].id if current_index < len(positions) - 1 else None
+    except ValueError:
+        prev_position = next_position = None
 
     # Ensure the user accepted terms
     if not request.user.userprofile.accepted_terms:
@@ -186,10 +217,12 @@ def candidateView(request, pos):
         if not event_active:
             return render(request, 'poll/candidate.html', {
                 'obj': obj,
-                'event': current_event,
+                'event': current_event,  # Pass the event to the template
                 'event_status': current_event.status(),
                 'can_vote': False,
-                'show_vote_disabled_modal': True
+                'show_vote_disabled_modal': True,
+                'prev_position': prev_position,
+                'next_position': next_position
             })
 
         control_vote, _ = ControlVote.objects.get_or_create(user=request.user, position=obj)
@@ -206,16 +239,18 @@ def candidateView(request, pos):
             control_vote.save()
 
             messages.success(request, f"You successfully voted for {candidate.name} as {candidate.position}.")
-            return redirect('position')
+            return redirect('candidate', next_position) if next_position else redirect('position')
         else:
             messages.error(request, 'You have already voted for this position.')
 
     return render(request, 'poll/candidate.html', {
         'obj': obj,
-        'event': current_event,
+        'event': current_event,  # Pass the event to the template here too
         'event_status': current_event.status(),
         'can_vote': event_active,
-        'show_vote_disabled_modal': not event_active
+        'show_vote_disabled_modal': not event_active,
+        'prev_position': prev_position,
+        'next_position': next_position
     })
 
 
@@ -298,13 +333,29 @@ def adminDashboardView(request):
 
 @login_required
 def myBallotView(request):
-    votes = UserVote.objects.filter(user=request.user).select_related('candidate', 'candidate__position')
-    return render(request, 'poll/my_ballot.html', {'votes': votes})
+    selected_event_id = request.session.get('selected_event_id')
+
+    if not selected_event_id:
+        messages.error(request, "No election event selected.")
+        return redirect('dashboard')
+
+    event = get_object_or_404(ElectionEvent, id=selected_event_id)
+
+    # Filter votes for the current user and the selected event
+    votes = UserVote.objects.filter(
+        user=request.user,
+        candidate__position__event=event
+    ).select_related('candidate', 'candidate__position')
+
+    return render(request, 'poll/my_ballot.html', {
+        'votes': votes,
+        'event_name': event.title
+    })
+
 
 
 @login_required
 def resultView(request):
-    # Fetch the selected election event based on the session
     selected_event_id = request.session.get('selected_event_id')
     current_event = ElectionEvent.objects.filter(id=selected_event_id).first()
 
@@ -320,10 +371,11 @@ def resultView(request):
             'modal_message': "Election results will be available once the election has ended.",
         })
 
-    # Proceed normally if the election has ended
-    positions = Position.objects.all()
-    all_candidates = Candidate.objects.all().order_by('position', '-total_vote')
-    last_vote = UserVote.objects.order_by('-timestamp').first()
+    positions = Position.objects.filter(event=current_event)
+
+    all_candidates = Candidate.objects.filter(position__event=current_event).order_by('position', '-total_vote')
+
+    last_vote = UserVote.objects.filter(candidate__position__event=current_event).order_by('-timestamp').first()
     last_updated = localtime(last_vote.timestamp) if last_vote else None
 
     results = defaultdict(list)
@@ -345,5 +397,5 @@ def resultView(request):
         'results': dict(results),
         'last_updated': last_updated,
         'show_modal': False,
-        'current_event': current_event  # Pass the current election event to the context
+        'current_event': current_event
     })
