@@ -17,7 +17,7 @@
       {% endif %}
 
       <div class="mb-3">
-        <a href="{% url 'position' %}" class="back-link">← Back to Positions</a>
+        <a href="{% url 'position' %}" class="back-link">← Back</a>
       </div>
 
       <!-- Event Name Displayed -->
@@ -28,7 +28,7 @@
       <h3 class="text-center mb-4">Candidates for {{ obj.title }}</h3>
 
       <div class="custom-instruction-box">
-        <strong>Short Instruction:</strong> Please choose your preferred candidate for <em>{{ obj.title }}</em> below.
+        <strong>Instruction:</strong> Please choose your preferred candidate for <em>{{ obj.title }}</em> below.
       </div>      
 
       {% if show_vote_disabled_modal %}

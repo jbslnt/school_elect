@@ -51,12 +51,25 @@ class ElectionEventAdmin(admin.ModelAdmin):
                 p.drawString(70, y, line)
                 y -= 15
 
-                if y < 100:
-                    p.showPage()
-                    y = height - 50
+                # Get the users who voted for this candidate
+                voters = UserVote.objects.filter(candidate=candidate).select_related('user').order_by('user__username')
+                if voters.exists():
+                    p.setFont("Helvetica-Oblique", 10)
+                    for vote in voters:
+                        voter_line = f"    - {vote.user.username} at {vote.timestamp.strftime('%Y-%m-%d %H:%M')}"
+                        p.drawString(90, y, voter_line)
+                        y -= 12
+                        if y < 100:
+                            p.showPage()
+                            y = height - 50
+                else:
+                    p.setFont("Helvetica-Oblique", 10)
+                    p.drawString(90, y, "    No votes.")
+                    y -= 12
 
-            y -= 10  # Spacing between positions
+                y -= 5
 
+            y -= 10
         p.showPage()
         p.save()
         return response
