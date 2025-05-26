@@ -61,24 +61,14 @@
     <div class="col-md-4 col-sm-6 col-12">
       <div class="card card-custom text-center">
         <div class="card-body">
-          <h5 class="card-title">👥 Total Users</h5>
-          <p class="display-6">{{ total_users }}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 col-sm-6 col-12">
-      <div class="card card-custom text-center">
-        <div class="card-body">
-          <h5 class="card-title">🗳️ Total Voters</h5>
-          <p class="display-6">{{ total_voters }}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 col-sm-6 col-12">
-      <div class="card card-custom text-center">
-        <div class="card-body">
           <h5 class="card-title">📈 Turnout</h5>
-          <p class="display-6">{{ turnout }}%</p>
+          <canvas id="turnoutCircle" width="120" height="120"></canvas>
+          <div class="mt-2 fw-bold" id="turnoutLabel">{{ turnout }}%</div>
+          {% if event %}
+            <div class="mt-1 small text-muted">
+              Eligible Voters: <span id="eligibleVotersLabel">{{ event.eligible_voters|default:"0" }}</span>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -91,6 +81,7 @@
       <p><strong>Title:</strong> {{ event.title }}</p>
       <p><strong>Start Time:</strong> {{ event.start_time }}</p>
       <p><strong>End Time:</strong> {{ event.end_time }}</p>
+      <p><strong>Eligible Voters:</strong> {{ event.eligible_voters|default:"0" }}</p>
       <p><strong id="countdown"></strong></p>
     </div>
   </div>
@@ -127,8 +118,6 @@
     </div>
   </div>
   {% endif %}
-
-
 </div>
 
 <script>
@@ -205,6 +194,30 @@
   createBarChart('yearChart', yearLabels, yearCounts, 'Year Distribution', '#2ecc71');
   createBarChart('programChart', programLabels, programCounts, 'Program Distribution', '#e67e22');
   createBarChart('departmentChart', departmentLabels, departmentCounts, 'Department Distribution', '#9b59b6');
+
+  // Turnout Circle Chart
+  const turnout = {{ turnout|default:0 }};
+  const eligibleVoters = {% if event %}{{ event.eligible_voters|default:0 }}{% else %}0{% endif %};
+  const ctxTurnout = document.getElementById('turnoutCircle').getContext('2d');
+  new Chart(ctxTurnout, {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [turnout, 100 - turnout],
+        backgroundColor: ['#3498db', '#e0e0e0'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      cutout: '75%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false }
+      }
+    }
+  });
+  document.getElementById('turnoutLabel').innerText = turnout + '%';
+  // Optionally, you can use eligibleVoters in your JS if needed
 </script>
 
 {% endblock %}

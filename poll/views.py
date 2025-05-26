@@ -102,14 +102,17 @@ def dashboardView(request):
 
     if current_event:
         positions = Position.objects.filter(event=current_event)
-        # Only users who have at least one ControlVote for this event
-        eligible_user_ids = ControlVote.objects.filter(position__in=positions).values_list('user', flat=True).distinct()
-        total_users = eligible_user_ids.count()
-        # Only users who have at least one ControlVote with status=True for this event
-        total_voters = ControlVote.objects.filter(position__in=positions, status=True).values('user').distinct().count()
+        # Count unique users who have voted (status=True in ControlVote for any position in this event)
+        voted_user_ids = ControlVote.objects.filter(
+            position__in=positions, status=True
+        ).values_list('user', flat=True).distinct()
+        total_voters = voted_user_ids.count()
+        # Use the eligible_voters field set in the admin for this event
+        total_users = current_event.eligible_voters
         turnout = round((total_voters / total_users) * 100, 2) if total_users else 0
         event_status = current_event.status()
-        users_for_event = UserProfile.objects.filter(user__in=eligible_user_ids)
+        # For demographics, you may want to show only eligible users if you have a way to track them
+        users_for_event = UserProfile.objects.filter(user__in=voted_user_ids)
     else:
         total_users = 0
         total_voters = 0

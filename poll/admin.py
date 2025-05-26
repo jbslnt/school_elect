@@ -10,7 +10,7 @@ from .models import (
 
 @admin.register(ElectionEvent)
 class ElectionEventAdmin(admin.ModelAdmin):
-    list_display = ('title', 'start_time', 'end_time', 'status')
+    list_display = ('title', 'start_time', 'end_time', 'eligible_voters', 'status')
     ordering = ('-start_time',)
     actions = ['generate_pdf_summary']
 

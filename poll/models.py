@@ -7,6 +7,8 @@ class ElectionEvent(models.Model):
     title = models.CharField(max_length=100)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
+    eligible_voters = models.PositiveIntegerField(default=0, help_text="Number of eligible voters for this event")
+
 
     def is_active(self):
         now_time = timezone.now()
