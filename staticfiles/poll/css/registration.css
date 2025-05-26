@@ -16,6 +16,23 @@ body {
   padding: 20px;
 }
 
+.form-group .form-control {
+  padding: 14px;
+  border: none;
+  border-radius: 30px;
+  background: #eee;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  width: 100%;
+}
+
+.text-danger {
+  color: red;
+  font-size: 12px;
+}
+
+
 .register-container {
   width: 100%;
   max-width: 500px;
@@ -109,7 +126,6 @@ body {
 
 
 select.form-control {
-  appearance: none;
   padding: 10px;
   border-radius: 5px;
   border: 1px solid #ccc;

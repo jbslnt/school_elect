@@ -25,7 +25,7 @@ SECRET_KEY = 'o0%4arn*&k50_$asckk9b99+)uci5$+y6w87nh*n^a%4e((y+#'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vercel.app']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -118,6 +118,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
+
 
 STATIC_URL = '/staticfiles/'
 LOGIN_URL = '/login/'

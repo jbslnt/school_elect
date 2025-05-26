@@ -20,16 +20,15 @@
         <a href="{% url 'position' %}" class="back-link">← Back</a>
       </div>
 
-      <!-- Event Name Displayed -->
       {% if event %}
-        <h2 class="text-center mb-4 event-name"> {{ event }}</h2> 
+        <h2 class="text-center mb-4 event-name">{{ event }}</h2> 
       {% endif %}
 
       <h3 class="text-center mb-4">Candidates for {{ obj.title }}</h3>
 
       <div class="custom-instruction-box">
-        <strong>Instruction:</strong> Please choose your preferred candidate for <em>{{ obj.title }}</em> below.
-      </div>      
+        <strong>Instruction:</strong> Please choose your preferred candidate for <em>{{ obj.title }}</em>.
+      </div>
 
       {% if show_vote_disabled_modal %}
         <div class="alert alert-warning text-center" role="alert">
@@ -37,7 +36,7 @@
         </div>
       {% endif %}
 
-      <form method="POST" class="candidate-form" onsubmit="return confirmVote()">
+      <form method="POST" class="candidate-form" id="voteForm" {% if not next_position %}onsubmit="return gatherAndSubmitVotes()"{% else %}onsubmit="return false;"{% endif %}>
         {% csrf_token %}
         <div class="list-group mb-4">
           {% for c in obj.candidate_set.all %}
@@ -49,7 +48,7 @@
                   name="candidate" 
                   value="{{ c.id }}" 
                   class="form-check-input me-3" 
-                  {% if not can_vote %}disabled{% endif %}
+                  {% if not can_vote %}disabled{% endif %} 
                   required>
                 <label class="candidate-info" for="id_{{ c.id }}">
                   <strong>{{ c.name }}</strong>
@@ -62,7 +61,9 @@
           {% endfor %}
         </div>
 
-        <button type="submit" class="btn btn-vote" {% if not can_vote %}disabled{% endif %}>Submit Vote</button>
+        {% if not next_position %}
+          <button type="submit" class="btn btn-vote" {% if not can_vote %}disabled{% endif %}>Submit Vote</button>
+        {% endif %}
       </form>
 
       <div class="d-flex justify-content-between mt-4">
@@ -70,7 +71,11 @@
           <a href="{% url 'candidate' prev_position %}" class="btn btn-nav">← Back</a>
         {% endif %}
         {% if next_position %}
-          <a href="{% url 'candidate' next_position %}" class="btn btn-nav">Next →</a>
+          <button class="btn btn-nav" 
+                  onclick="goToNextPosition('{{ next_position }}')" 
+                  {% if not can_vote %}disabled title="Voting has ended."{% endif %}>
+            Next →
+          </button>
         {% endif %}
       </div>
     </div>
@@ -78,7 +83,68 @@
 </div>
 
 <script>
-  function confirmVote() {
+  const positionId = "{{ obj.id }}";
+  const voteKey = `vote_selection_${positionId}`;
+
+  // Save selection on change
+  document.querySelectorAll('input[name="candidate"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      sessionStorage.setItem(voteKey, radio.value);
+    });
+  });
+
+  // Restore selection on load
+  window.onload = function () {
+    const savedVote = sessionStorage.getItem(voteKey);
+    if (savedVote) {
+      const selectedRadio = document.querySelector(`input[value="${savedVote}"]`);
+      if (selectedRadio) {
+        selectedRadio.checked = true;
+      }
+    }
+  };
+
+  // Next button logic
+  function goToNextPosition(nextId) {
+    const selected = document.querySelector('input[name="candidate"]:checked');
+    if (selected) {
+      sessionStorage.setItem(voteKey, selected.value);
+      window.location.href = `/candidate/${nextId}/`;
+    } else {
+      alert("Please select a candidate before proceeding.");
+    }
+  }
+
+  // Gather all votes and submit on last page
+  function gatherAndSubmitVotes() {
+    // Pass all position IDs from Django as JSON
+    const allPositionIds = {{ all_position_ids|safe }};
+    const form = document.getElementById('voteForm');
+    let allVoted = true;
+
+    allPositionIds.forEach(function(posId) {
+      const vote = sessionStorage.getItem(`vote_selection_${posId}`);
+      if (!vote) {
+        allVoted = false;
+      }
+      // Remove existing hidden input if any
+      let existing = form.querySelector(`input[name="vote_${posId}"]`);
+      if (existing) existing.remove();
+      // Add hidden input for each vote
+      if (vote) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = `vote_${posId}`;
+        input.value = vote;
+        form.appendChild(input);
+      }
+    });
+
+    if (!allVoted) {
+      alert("Please make sure you have selected a candidate for every position.");
+      return false;
+    }
+
     return confirm('Are you sure you want to cast your vote?');
   }
 </script>

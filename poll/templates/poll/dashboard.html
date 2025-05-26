@@ -89,7 +89,6 @@
     <div class="card-body">
       <h5 class="card-title">Election Event Details</h5>
       <p><strong>Title:</strong> {{ event.title }}</p>
-      <p><strong>Status:</strong> {{ event_status }}</p>
       <p><strong>Start Time:</strong> {{ event.start_time }}</p>
       <p><strong>End Time:</strong> {{ event.end_time }}</p>
       <p><strong id="countdown"></strong></p>
@@ -128,6 +127,8 @@
     </div>
   </div>
   {% endif %}
+
+
 </div>
 
 <script>

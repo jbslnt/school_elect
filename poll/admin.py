@@ -45,13 +45,13 @@ class ElectionEventAdmin(admin.ModelAdmin):
             y -= 20
 
             candidates = Candidate.objects.filter(position=position).order_by('-total_vote')
-            for candidate in candidates:
+            for idx, candidate in enumerate(candidates):
                 p.setFont("Helvetica", 11)
-                line = f"• {candidate.name} ({candidate.partylist or 'No Party'}) - {candidate.total_vote} vote(s)"
+                winner_mark = " (Winner)" if idx == 0 and candidate.total_vote > 0 else ""
+                line = f"• {candidate.name} ({candidate.partylist or 'No Party'}) - {candidate.total_vote} vote(s){winner_mark}"
                 p.drawString(70, y, line)
                 y -= 15
 
-                # Get the users who voted for this candidate
                 voters = UserVote.objects.filter(candidate=candidate).select_related('user').order_by('user__username')
                 if voters.exists():
                     p.setFont("Helvetica-Oblique", 10)
@@ -68,8 +68,8 @@ class ElectionEventAdmin(admin.ModelAdmin):
                     y -= 12
 
                 y -= 5
-
             y -= 10
+
         p.showPage()
         p.save()
         return response
@@ -98,6 +98,10 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(UserVote)
 class UserVoteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'candidate', 'timestamp')
+    list_display = ('user', 'candidate', 'get_event', 'timestamp')
     list_filter = ('timestamp',)
     search_fields = ('user__username', 'candidate__name')
+
+    def get_event(self, obj):
+        return obj.candidate.position.event.title
+    get_event.short_description = 'Event'

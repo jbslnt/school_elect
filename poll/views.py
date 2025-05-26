@@ -8,12 +8,12 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from .models import Candidate, ControlVote, Position, UserVote, UserProfile, ElectionEvent
 from django.utils.timezone import localtime
-from django.utils import timezone
 from .forms import EditProfileForm
 from collections import defaultdict
 from django.utils.timezone import now
 from django.db.models import Count
 import json
+
 
 
 def homeView(request):
@@ -34,7 +34,6 @@ def registrationView(request):
                 user.set_password(cd['password'])
                 user.save()
 
-                # ✅ Now the UserProfile will be created via signal or OneToOne
                 profile = user.userprofile
                 profile.gender = cd['gender']
                 profile.program = cd['program']
@@ -54,7 +53,6 @@ def registrationView(request):
 
 
 def loginView(request):
-    # If the user is already authenticated, redirect to the dashboard
     if request.user.is_authenticated:
         return redirect('dashboard')
 
@@ -64,12 +62,10 @@ def loginView(request):
         try:
             user_obj = User.objects.get(email=email)
             
-            # Check if the email ends with '@jmc.edu.ph'
             if not email.endswith('@jmc.edu.ph'):
                 messages.error(request, 'Only emails under @jmc.edu.ph are allowed.')
                 return render(request, "poll/login.html")
             
-            # Authenticate the user
             user = authenticate(request, username=user_obj.username, password=password)
         except User.DoesNotExist:
             user = None
@@ -106,21 +102,21 @@ def dashboardView(request):
 
     if current_event:
         positions = Position.objects.filter(event=current_event)
+        # Only users who have at least one ControlVote for this event
+        eligible_user_ids = ControlVote.objects.filter(position__in=positions).values_list('user', flat=True).distinct()
+        total_users = eligible_user_ids.count()
+        # Only users who have at least one ControlVote with status=True for this event
         total_voters = ControlVote.objects.filter(position__in=positions, status=True).values('user').distinct().count()
-        total_users = User.objects.count()  # Or filter by event if needed
         turnout = round((total_voters / total_users) * 100, 2) if total_users else 0
         event_status = current_event.status()
-        
-        # Filter UserProfile by the selected event and their related data
-        users_for_event = UserProfile.objects.filter(user__controlvote__position__event=current_event)
+        users_for_event = UserProfile.objects.filter(user__in=eligible_user_ids)
     else:
         total_users = 0
         total_voters = 0
         turnout = 0
         event_status = "No event selected"
-        users_for_event = UserProfile.objects.none()  # No users if no event is selected
+        users_for_event = UserProfile.objects.none()  
 
-    # Demographics filtered by the selected event
     gender_stats = users_for_event.values('gender').annotate(count=Count('gender'))
     program_stats = users_for_event.values('program').annotate(count=Count('program'))
     year_stats = users_for_event.values('year').annotate(count=Count('year'))
@@ -129,7 +125,6 @@ def dashboardView(request):
     profile = request.user.userprofile
     show_terms = not profile.accepted_terms
 
-    # Prepare the chart data for JSON serialization
     context = {
         'total_users': total_users,
         'total_voters': total_voters,
@@ -161,12 +156,10 @@ def dashboardView(request):
 
 @login_required
 def positionView(request):
-    # Get selected election from session
     selected_event_id = request.session.get('selected_event_id')
     selected_event = ElectionEvent.objects.filter(id=selected_event_id).first()
 
     if not selected_event:
-        # Show modal message if no election is selected
         context = {
             'obj': [],
             'show_event_modal': True,
@@ -174,7 +167,6 @@ def positionView(request):
         }
         return render(request, "poll/position.html", context)
 
-    # Fetch positions for the selected event
     positions = Position.objects.filter(event=selected_event)
 
     context = {
@@ -188,7 +180,9 @@ def positionView(request):
     
 @login_required
 def candidateView(request, pos):
-    # Get selected event from session
+    import json
+    from django.utils.safestring import mark_safe
+
     selected_event_id = request.session.get('selected_event_id')
     current_event = ElectionEvent.objects.filter(id=selected_event_id).first()
 
@@ -196,9 +190,11 @@ def candidateView(request, pos):
         messages.error(request, "No election event selected.")
         return redirect('dashboard')
 
-    # Get all positions for the event and determine navigation order
     positions = list(Position.objects.filter(event=current_event).order_by('id'))
     obj = get_object_or_404(Position, pk=pos, event=current_event)
+
+    # Prepare all position IDs for JS
+    all_position_ids = [p.id for p in positions]
 
     try:
         current_index = positions.index(obj)
@@ -207,51 +203,52 @@ def candidateView(request, pos):
     except ValueError:
         prev_position = next_position = None
 
-    # Ensure the user accepted terms
     if not request.user.userprofile.accepted_terms:
         return redirect('accept_terms')
 
     event_active = current_event.is_active()
 
+    control_vote, created = ControlVote.objects.get_or_create(user=request.user, position=obj)
+    already_voted = control_vote.status
+
+    # Handle POST for final submission (all votes at once)
     if request.method == "POST":
         if not event_active:
-            return render(request, 'poll/candidate.html', {
-                'obj': obj,
-                'event': current_event,  # Pass the event to the template
-                'event_status': current_event.status(),
-                'can_vote': False,
-                'show_vote_disabled_modal': True,
-                'prev_position': prev_position,
-                'next_position': next_position
-            })
-
-        control_vote, _ = ControlVote.objects.get_or_create(user=request.user, position=obj)
-
-        if not control_vote.status:
-            candidate_id = request.POST.get("candidate")
-            candidate = get_object_or_404(Candidate, pk=candidate_id, position=obj)
-
-            UserVote.objects.create(user=request.user, candidate=candidate)
-            candidate.total_vote += 1
-            candidate.save()
-
-            control_vote.status = True
-            control_vote.save()
-
-            messages.success(request, f"You successfully voted for {candidate.name} as {candidate.position}.")
-            return redirect('candidate', next_position) if next_position else redirect('position')
+            messages.warning(request, "Voting is not active at this time.")
         else:
-            messages.error(request, 'You have already voted for this position.')
+            # Only allow voting if user hasn't voted for all positions yet
+            voted_any = False
+            for pos_id in all_position_ids:
+                # Only process if user hasn't voted for this position yet
+                position = Position.objects.get(pk=pos_id, event=current_event)
+                control_vote, _ = ControlVote.objects.get_or_create(user=request.user, position=position)
+                if not control_vote.status:
+                    candidate_id = request.POST.get(f"vote_{pos_id}")
+                    if candidate_id:
+                        candidate = get_object_or_404(Candidate, pk=candidate_id, position=position)
+                        UserVote.objects.create(user=request.user, candidate=candidate)
+                        candidate.total_vote += 1
+                        candidate.save()
+                        control_vote.status = True
+                        control_vote.save()
+                        voted_any = True
+            if voted_any:
+                messages.success(request, "Your votes have been submitted successfully.")
+            else:
+                messages.warning(request, "You have already voted for all positions or did not select any candidates.")
+            return redirect('position')
 
-    return render(request, 'poll/candidate.html', {
+    context = {
         'obj': obj,
-        'event': current_event,  # Pass the event to the template here too
+        'event': current_event,
         'event_status': current_event.status(),
-        'can_vote': event_active,
-        'show_vote_disabled_modal': not event_active,
+        'can_vote': event_active and not already_voted,
+        'show_vote_disabled_modal': not event_active or already_voted,
         'prev_position': prev_position,
-        'next_position': next_position
-    })
+        'next_position': next_position,
+        'all_position_ids': mark_safe(json.dumps(all_position_ids)),
+    }
+    return render(request, 'poll/candidate.html', context)
 
 
 
@@ -292,7 +289,6 @@ def editProfileView(request):
         if form.is_valid():
             user = form.save()
 
-            # Update UserProfile fields
             profile = user.userprofile
             profile.gender = form.cleaned_data['gender']
             profile.program = form.cleaned_data['program']
@@ -312,7 +308,6 @@ def adminDashboardView(request):
     if not request.user.is_staff:
         return render(request, 'poll/no_access.html') 
 
-    # Existing dashboard logic here
     positions = Position.objects.all()
     summary = []
 
@@ -341,7 +336,6 @@ def myBallotView(request):
 
     event = get_object_or_404(ElectionEvent, id=selected_event_id)
 
-    # Filter votes for the current user and the selected event
     votes = UserVote.objects.filter(
         user=request.user,
         candidate__position__event=event

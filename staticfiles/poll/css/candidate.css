@@ -3,7 +3,7 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
-h2 {
+h3 {
     font-weight: 700;
     color: #333;
 }
@@ -88,3 +88,39 @@ h2 {
     background-color: #f8f9fa;
     border-radius: 8px;
 }
+
+.btn-nav {
+    background-color: #770737;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 500;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-nav:hover {
+    background-color: #85083e;
+    color: #fff;
+}
+
+.custom-instruction-box {
+    background-color: #f4e5ed;
+    border-left: 5px solid #770737;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+
+.event-name {
+    font-size: 2.25rem; 
+    font-weight: 600;
+    color: #770737; 
+    margin-bottom: 1.5rem;
+  }
+  
