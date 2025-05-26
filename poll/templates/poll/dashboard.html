@@ -57,67 +57,41 @@
     </div>
   </form>
 
-  <div class="row g-4 justify-content-center">
-    <div class="col-md-4 col-sm-6 col-12">
-      <div class="card card-custom text-center">
-        <div class="card-body">
-          <h5 class="card-title">📈 Turnout</h5>
-          <canvas id="turnoutCircle" width="120" height="120"></canvas>
-          <div class="mt-2 fw-bold" id="turnoutLabel">{{ turnout }}%</div>
-          {% if event %}
-            <div class="mt-1 small text-muted">
-              Eligible Voters: <span id="eligibleVotersLabel">{{ event.eligible_voters|default:"0" }}</span>
-            </div>
-          {% endif %}
+  {% if event %}
+<div class="row g-4 mt-4 align-items-stretch">
+  <!-- Event Details -->
+  <div class="col-md-8 col-12 order-2 order-md-1">
+    <div class="card card-custom h-100">
+      <div class="card-body">
+        <h5 class="card-title">Election Event Details</h5>
+        <p><strong>Title:</strong> {{ event.title }}</p>
+        <p><strong>Start Time:</strong> {{ event.start_time }}</p>
+        <p><strong>End Time:</strong> {{ event.end_time }}</p>
+        <p><strong id="countdown"></strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Turnout -->
+  <div class="col-md-4 col-12 order-1 order-md-2">
+    <div class="card card-custom text-center h-100">
+      <div class="card-body">
+        <h5 class="card-title"> Turnout</h5>
+        <canvas id="turnoutCircle" width="120" height="120"></canvas>
+        <div class="mt-2 fw-bold" id="turnoutLabel">{{ turnout }}%</div>
+        <div class="mt-1 small text-muted">
+          Voters: <span id="eligibleVotersLabel">{{ event.eligible_voters|default:"0" }}</span>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  {% if event %}
-  <div class="card card-custom mt-5">
-    <div class="card-body">
-      <h5 class="card-title">Election Event Details</h5>
-      <p><strong>Title:</strong> {{ event.title }}</p>
-      <p><strong>Start Time:</strong> {{ event.start_time }}</p>
-      <p><strong>End Time:</strong> {{ event.end_time }}</p>
-      <p><strong>Eligible Voters:</strong> {{ event.eligible_voters|default:"0" }}</p>
-      <p><strong id="countdown"></strong></p>
-    </div>
-  </div>
-  {% else %}
-  <div class="alert alert-warning mt-5 text-center">
-    No election event configured.
-  </div>
-  {% endif %}
-
-  {% if event %}
-  <div class="container mt-5">
-    <h3 class="text-center mb-4">Demographic Breakdown</h3>
-    <div class="row g-4 justify-content-center">
-      <!-- Gender Distribution Chart -->
-      <div class="col-md-6 col-12">
-        <h5 class="text-center">Gender</h5>
-        <canvas id="genderChart"></canvas>
-      </div>
-      <!-- Year Distribution Chart -->
-      <div class="col-md-6 col-12">
-        <h5 class="text-center">Year</h5>
-        <canvas id="yearChart"></canvas>
-      </div>
-      <!-- Program Distribution Chart -->
-      <div class="col-md-6 col-12">
-        <h5 class="text-center">Program</h5>
-        <canvas id="programChart"></canvas>
-      </div>
-      <!-- Department Distribution Chart -->
-      <div class="col-md-6 col-12">
-        <h5 class="text-center">Department</h5>
-        <canvas id="departmentChart"></canvas>
-      </div>
-    </div>
-  </div>
-  {% endif %}
+{% else %}
+<div class="alert alert-warning mt-5 text-center">
+  No election event configured.
+</div>
+{% endif %}
 </div>
 
 <script>
@@ -131,7 +105,7 @@
 
     if (distance < 0) {
       clearInterval(timer);
-      countdown.innerHTML = eventStatus === "Upcoming" ? "✔️ Election Started" : "⏰ Election Ended";
+      countdown.innerHTML = eventStatus === "Upcoming" ? "✔️ Election Started" : " Election Ended";
     } else {
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
       const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -145,56 +119,13 @@
       countdownString += `${seconds} second${seconds > 1 ? 's' : ''}`;
 
       countdown.innerHTML = eventStatus === "Upcoming"
-        ? `🕒 Starts in ${countdownString}`
-        : `⏳ Ends in ${countdownString}`;
+        ? ` Starts in ${countdownString}`
+        : ` Ends in ${countdownString}`;
     }
   }, 1000);
 </script>
 
 <script>
-  const genderLabels = {{ gender_labels|safe }};
-  const genderCounts = {{ gender_counts|safe }};
-  const yearLabels = {{ year_labels|safe }};
-  const yearCounts = {{ year_counts|safe }};
-  const programLabels = {{ program_labels|safe }};
-  const programCounts = {{ program_counts|safe }};
-  const departmentLabels = {{ department_labels|safe }};
-  const departmentCounts = {{ department_counts|safe }};
-
-  function createBarChart(id, labels, data, label, color = '#3498db') {
-    const ctx = document.getElementById(id).getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: label,
-          data: data,
-          backgroundColor: color,
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              precision: 0
-            }
-          }
-        }
-      }
-    });
-  }
-
-  createBarChart('genderChart', genderLabels, genderCounts, 'Gender Distribution');
-  createBarChart('yearChart', yearLabels, yearCounts, 'Year Distribution', '#2ecc71');
-  createBarChart('programChart', programLabels, programCounts, 'Program Distribution', '#e67e22');
-  createBarChart('departmentChart', departmentLabels, departmentCounts, 'Department Distribution', '#9b59b6');
-
   // Turnout Circle Chart
   const turnout = {{ turnout|default:0 }};
   const eligibleVoters = {% if event %}{{ event.eligible_voters|default:0 }}{% else %}0{% endif %};
@@ -217,7 +148,6 @@
     }
   });
   document.getElementById('turnoutLabel').innerText = turnout + '%';
-  // Optionally, you can use eligibleVoters in your JS if needed
 </script>
 
 {% endblock %}

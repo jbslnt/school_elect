@@ -1,3 +1,5 @@
+
+
 body {
   background-color: #f8f9fa;
   font-family: 'Roboto', sans-serif;
@@ -141,59 +143,29 @@ h1 {
   }
 }
 
-/* For the demographic charts and card layout */
-@media (max-width: 768px) {
-  .card-custom {
-    margin-bottom: 1rem;
-  }
-
-  .container.mt-5 {
-    margin-top: 2rem;
-  }
-
-  .row.g-4 {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .col-md-6 {
-    width: 100% !important;
-    margin-bottom: 2rem;
-  }
-
-  .col-md-4 {
-    width: 100%;
-    margin-bottom: 1.5rem;
-  }
+/* Align cards on same height */
+.card-custom.h-100 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-@media (max-width: 480px) {
-  .container.mt-5 {
-    margin-top: 1.5rem;
-  }
+/* Ensure canvas doesn't overflow */
+.card-body canvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
 
-  .row.g-4 {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .col-md-6 {
+/* Tight spacing on mobile */
+@media (max-width: 767.98px) {
+  .row.g-4.align-items-stretch > .col-md-4,
+  .row.g-4.align-items-stretch > .col-md-8 {
     width: 100%;
-    margin-bottom: 2rem;
   }
 
   .card-title {
-    font-size: 1rem;
-  }
-
-  .card-custom {
-    margin-bottom: 2rem;
-  }
-
-  .col-md-4 {
-    width: 100%;
-    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
   }
 }
+
+

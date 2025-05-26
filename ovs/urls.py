@@ -20,10 +20,7 @@ urlpatterns = [
     path('admin-dashboard/', views.adminDashboardView, name='admin_dashboard'),
     path('my-ballot/', views.myBallotView, name='my_ballot'),
     path('accept-terms/', views.acceptTermsView, name='accept_terms'),
-
-
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
 
 admin.site.site_header = "Online Voting System"
 admin.site.index_title = "Welcome to online voting system admin panel"

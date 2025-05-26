@@ -100,25 +100,53 @@ def dashboardView(request):
     selected_event_id = request.session.get('selected_event_id')
     current_event = ElectionEvent.objects.filter(id=selected_event_id).first() if selected_event_id else None
 
+    from collections import defaultdict
+    import json
+
+    candidate_demographics = defaultdict(dict)
+    positions = Position.objects.filter(event=current_event) if current_event else []
+    position_titles = {str(pos.id): pos.title for pos in positions}
+
     if current_event:
-        positions = Position.objects.filter(event=current_event)
-        # Count unique users who have voted (status=True in ControlVote for any position in this event)
         voted_user_ids = ControlVote.objects.filter(
             position__in=positions, status=True
         ).values_list('user', flat=True).distinct()
         total_voters = voted_user_ids.count()
-        # Use the eligible_voters field set in the admin for this event
         total_users = current_event.eligible_voters
         turnout = round((total_voters / total_users) * 100, 2) if total_users else 0
         event_status = current_event.status()
-        # For demographics, you may want to show only eligible users if you have a way to track them
         users_for_event = UserProfile.objects.filter(user__in=voted_user_ids)
+
+        # Demographics by candidate and position
+        for pos in positions:
+            for candidate in Candidate.objects.filter(position=pos):
+                votes = UserVote.objects.filter(candidate=candidate)
+                user_ids = votes.values_list('user', flat=True)
+                profiles = UserProfile.objects.filter(user__in=user_ids)
+                gender_stats = profiles.values('gender').annotate(count=Count('gender'))
+                gender_labels = [entry['gender'] for entry in gender_stats]
+                gender_counts = [entry['count'] for entry in gender_stats]
+                candidate_demographics[pos.id][candidate.id] = {
+                    'candidate': candidate,
+                    'gender_labels': gender_labels,
+                    'gender_counts': gender_counts,
+                }
     else:
         total_users = 0
         total_voters = 0
         turnout = 0
         event_status = "No event selected"
-        users_for_event = UserProfile.objects.none()  
+        users_for_event = UserProfile.objects.none()
+
+    candidate_demographics_json = json.dumps({
+        str(pos_id): {
+            str(cand_id): {
+                'candidate_name': cand_data['candidate'].name,
+                'gender_labels': cand_data['gender_labels'],
+                'gender_counts': cand_data['gender_counts'],
+            } for cand_id, cand_data in cand_dict.items()
+        } for pos_id, cand_dict in candidate_demographics.items()
+    })
 
     gender_stats = users_for_event.values('gender').annotate(count=Count('gender'))
     program_stats = users_for_event.values('program').annotate(count=Count('program'))
@@ -141,6 +169,9 @@ def dashboardView(request):
         'program_stats': program_stats,
         'year_stats': year_stats,
         'department_stats': department_stats,
+        'candidate_demographics_json': candidate_demographics_json,
+        'positions': positions,
+        'position_titles': json.dumps(position_titles),  # <-- Add here!
     }
 
     context.update({
@@ -155,7 +186,6 @@ def dashboardView(request):
     })
 
     return render(request, "poll/dashboard.html", context)
-
 
 @login_required
 def positionView(request):
